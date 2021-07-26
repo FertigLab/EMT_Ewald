@@ -16,3 +16,19 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 ##### Output
 * mergedAdata.h5ad
 
+### 2_cleanData.ipynb
+#### Description - Preprocesses the combined data
+##### Input 
+* mergedAdata.h5ad
+##### Output
+* labelledAdata.h5ad
+* data/dataMatrix.mtx'
+* data/obs.csv
+* data/var.csv
+* rawCleanadata.h5ad
+* data/dataMatrixClean.mtx
+* data/obsClean.csv
+* data/varClean.csv
+
+
+
