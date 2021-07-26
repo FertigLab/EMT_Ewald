@@ -1,0 +1,128 @@
+---
+title: "Figure"
+author: "Melanie"
+date: "7/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r libraries}
+library(monocle3)
+library(CoGAPS)
+library(ggplot2)
+library(dplyr)
+library('ComplexHeatmap')
+sessionInfo()
+```
+
+```{r loadData}
+## Load the cds objects
+load("cellCycle_EJFPsuedotimeResults2Mar2020.Rda")
+## Load the CoGAPS 20 Pattern Result
+cogapsRes <- readRDS("gwCogapsRes/emtGwCogaps_20.rds")
+## Load the pathways results for the emt pathwyay
+emtPatterns <- read.csv(file = "msigdb/emtPatterns.csv", header = TRUE)
+## Load the pattern markers
+patternMarkerResults <- read.csv(file = "patternMarkers_emtGwCogaps_20.csv")
+## Load the EMT genes
+emtGenes <- read.csv("geneList.csv", header = FALSE)
+```
+
+## Panel A : Cell cycle
+```{r}
+## Plot the cell cycle
+plot_cells(cdsNorm, color_cells_by = "phase", label_cell_groups = FALSE) +
+    ggtitle("Cell Cycle Phase")
+```
+
+
+## Panel B : Violin plots of Cdh1 / Vim by cell cycle state
+```{r violinPlot}
+## Violin plot
+## Subset to Vim and CDH1
+cdsSubset <- cdsNorm[rowData(cdsNorm)$gene_short_name %in% c("Vim", "Cdh1"), ]
+plot_genes_violin(cdsSubset, group_cells_by = "phase", ncol = 2)
+```
+
+## Panel C : Barplot of -10*log10(p values) for the hallmark EMT pathway
+```{r}
+## Make barplot for the hallmark emt pathway----
+## Read in the emt pathway tables
+emtPatterns <- read.csv("msigdb/emtPatterns.csv")
+## Add the column with the updated p value
+emtPatterns$'-10*log10(p.value)' <- (-10)*log10(emtPatterns$p.value)
+
+
+## Make the barplot
+ggplot(data = emtPatterns, aes_string(y = "-10*log10(p.value)", x = "Pattern", fill = "Pattern")) +
+    geom_col() +
+    coord_flip() +
+    theme_minimal() +
+    ggtitle("Hallmark EMT Pathway")
+## Make the barplot
+ggplot(data = emtPatterns, aes_string(y = "p.value", x = "Pattern", fill = "Pattern")) +
+    geom_col() +
+    coord_flip() +
+    theme_minimal() +
+    ggtitle("Hallmark EMT Pathway")
+```
+
+
+## Panel D : Heatmap with * added to the heatmap if it's a pattern marker gene 
+```{r, fig.height=6}
+## Heatmap of the amplitude matrix ----
+## Extract the amplitude matrix while dropping the cell line patterns
+amplitude <- cogapsRes@featureLoadings[rownames(cogapsRes@featureLoadings) %in% emtGenes$V1, 
+    !colnames(cogapsRes@featureLoadings) %in%c("Pattern_2", "Pattern_13")]
+
+## Scale and center the data
+scaledmat<- t(apply(amplitude, 1, scale))
+
+## Reassign the column names
+colnames(scaledmat) <- colnames(amplitude)
+
+## Add * if the gene is a pattern marker for 
+
+small_mat <- matrix("", nrow = 33, ncol= 17)
+rownames(small_mat) <- rownames(scaledmat)
+colnames(small_mat) <- colnames(scaledmat)
+
+## Add * if the gene is pattern marker
+for (i in rownames(small_mat)){
+    for(j in colnames(patternMarkerResults)){
+        if( paste0(i) %in% patternMarkerResults[,paste0(j)]) {
+            small_mat[paste(i), paste0(j)] <- "*"
+        }
+    }
+}
+## Create the heatmap
+Heatmap(scaledmat, name = "Amplitude",cluster_columns = TRUE,
+        show_row_dend = FALSE, 
+        show_column_dend = FALSE,
+        column_title = "Amplitude Heatmap of EMT Genes (nPattern = 20)",
+        cell_fun = function(j, i, x, y, width, height, fill) {
+        grid.text(sprintf(small_mat[i, j]), x, y, gp = gpar(fontsize = 10))
+})
+
+
+```
+
+
+## Panel E : UMAPS colored by pattern weights for patterns 5, 8, and 14 
+```{r}
+## Create the pattern umaps ----
+cdsNorm@colData <- cbind(colData(cdsNorm), cogapsRes@sampleFactors[colnames(cdsNorm), ])
+
+## Pattern 5
+plot_cells(cdsNorm, color_cells_by = "Pattern_5", label_cell_groups = FALSE)
+
+## Pattern 8
+plot_cells(cdsNorm, color_cells_by = "Pattern_8", label_cell_groups = FALSE)
+
+## Pattern 14
+plot_cells(cdsNorm, color_cells_by = "Pattern_14", label_cell_groups = FALSE)
+```
+
