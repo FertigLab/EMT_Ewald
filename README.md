@@ -90,4 +90,11 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * sbstCds.rds
 * countsSbstCds.rds
 
+### 10_cogapsObjects_collagen.Rmd
+#### Description - Create CoGAPS objects for the collagen gene subset
+##### Input 
+* countsSbstCds.rds
+##### Output
+* emtMat.mtx
+* emtParams.rds
 
