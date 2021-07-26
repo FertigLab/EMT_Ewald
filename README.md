@@ -50,4 +50,12 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * geneList.csv
 ##### No Output
 
+### 5_EJFPreprocessingAnalysis.R
+#### Description - Run pseudotime for matrigel and collagen
+##### Input 
+* cdsBasic.RDS  
+* geneList.csv
+##### Output
+* EJFPsuedotimeResults2Mar2020.Rda
+
 
