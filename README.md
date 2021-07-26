@@ -73,3 +73,12 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * regev_lab_cellCycle_mmouse.txt
 ##### Output
 * obs.csv
+
+### 8_addCellCycle.Rmd
+#### Description - Add cell cycle to cds objects
+##### Input 
+* EJFPsuedotimeResults2Mar2020.Rda
+* obs.csv
+##### Output
+* cellCycle_EJFPsuedotimeResults2Mar2020.Rda
+
