@@ -58,4 +58,11 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 ##### Output
 * EJFPsuedotimeResults2Mar2020.Rda
 
+### 6_PseudotimeCorrectedData.Rmd
+#### Description - Process and plot the corrected data
+##### Input 
+* intermediateData/cdsDayCorrected.RDS
+* geneList.csv
+##### No Output
+
 
