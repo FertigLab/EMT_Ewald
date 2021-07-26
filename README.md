@@ -82,3 +82,12 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 ##### Output
 * cellCycle_EJFPsuedotimeResults2Mar2020.Rda
 
+### 9_CoGAPSData_collagen.Rmd
+#### Description - Calculate top collagen genes and subset the data to those genes for CoGAPS
+##### Input 
+* EJFPsuedotimeResults2Mar2020.Rda
+##### Output
+* sbstCds.rds
+* countsSbstCds.rds
+
+
