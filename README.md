@@ -65,4 +65,11 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * geneList.csv
 ##### No Output
 
-
+### 7_ScanpyEMT.ipynb
+#### Description - Calculate and export cell cycle 
+##### Input 
+* rawCleanadata.h5ad
+* regev_lab_cellCycle_smouse.txt
+* regev_lab_cellCycle_mmouse.txt
+##### Output
+* obs.csv
