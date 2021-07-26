@@ -108,4 +108,10 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * Boxplots
 * patternMarkers_emtGwCogaps_20.csv
 
-
+### 12_cogapsVisuals_collagen.Rmd
+#### Description - Create heatmap and gene rank file for CoGAPS result
+##### Input 
+* gwCogapsRes/emtGwCogaps_20.rds
+* geneList.csv
+##### Output
+* emtGeneRanks.csv
