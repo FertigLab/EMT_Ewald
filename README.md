@@ -98,3 +98,14 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * emtMat.mtx
 * emtParams.rds
 
+### 11_ewald_gwCogapsAnalysis_collagen.Rmd
+#### Description - Analyze CoGAPS results
+##### Input 
+* sbstCds.rds
+* CoGAPS results
+##### Output
+* UMAPS
+* Boxplots
+* patternMarkers_emtGwCogaps_20.csv
+
+
