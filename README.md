@@ -115,3 +115,21 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * geneList.csv
 ##### Output
 * emtGeneRanks.csv
+
+### Ran gene set analysis using MSigDb
+#### Input
+* Pattern marker genes
+#### Output
+* Pathway results
+
+### 13_Figure.Rmd
+#### Description - Create the first set of figures
+##### Input 
+* cellCycle_EJFPsuedotimeResults2Mar2020.Rda
+* gwCogapsRes/emtGwCogaps_20.rds
+* msigdb/emtPatterns.csv
+* patternMarkers_emtGwCogaps_20.csv
+* geneList.csv
+* msigdb/emtPatterns.csv
+##### Output
+* Figures
