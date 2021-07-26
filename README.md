@@ -133,3 +133,13 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * msigdb/emtPatterns.csv
 ##### Output
 * Figures
+
+### 14_ChungProjection.Rmd
+#### Description - Format the Chung single cell data, subset to tumor cells, run ProjectR
+##### Input 
+* GSE75688_GEO_processed_Breast_Cancer_raw_TPM_matrix.txt
+* GSE75688_final_sample_information.txt
+* gwCogapsRes/emtGwCogaps_20.rds
+##### Output
+* HumanTumorCoGAPSprojection.rdata
+* Projected pattern umaps
