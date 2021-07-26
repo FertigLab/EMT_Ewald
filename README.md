@@ -30,5 +30,20 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * data/obsClean.csv
 * data/varClean.csv
 
+### 3_ClusteringAfterBatchCorrection.Rmd
+#### Description - Create CDS with the “clean” data. CDS is preprocessed.
+##### Input 
+* data/dataMatrixClean.mtx
+* data/obsClean.csv
+* data/varClean.csv
+##### Output
+* intermediateData/cdsBasic.RDS
+* intermediateData/cdsBasic.RDS
+* data/normalizedMatrix.mtx
+* intermediateData/cdsNormalizedDimReduced.rds
+* intermediateData/cdsDayCorrected.RDS
 
-
+data/normalizedMatrix.mtx
+iii.	intermediateData/cdsNormalizedDimReduced.rds
+iv.	intermediateData/cdsDayCorrected.RDS
+![image](https://user-images.githubusercontent.com/59892258/127000681-7047ea66-3c95-45d8-a859-51be47cf5d93.png)
