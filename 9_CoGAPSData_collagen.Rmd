@@ -1,0 +1,45 @@
+---
+title: "EMT single cell collagen analysis"
+author: "Gaurav Sharma, Atul Deshpande, Elana Fertig"
+date: "3/21/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r libraries}
+library(monocle3)
+library(dplyr)
+library(pheatmap)
+library(ggplot2)
+library('sva')
+library('ComplexHeatmap')
+library(circlize)
+sessionInfo()
+```
+
+# Load in proceessed data and imputed data
+
+```{r}
+load('EJFPsuedotimeResults2Mar2020.Rda')
+#saverObj <- readRDS('imputedDataAllGenes.rds')
+#impute <- saverObj$estimate
+#impute <- impute[apply(impute,1,max)>0,]
+```
+
+# Extract more limited set of genes for CoGAPS analysis
+
+```{r}
+tg <- top_markers(cdsNormCollagen, genes_to_test_per_group = 1000)
+```
+
+# Full data with subset genes for CoGAPS analysis
+
+```{r}
+sbstCDSCoGAPS <- cdsNorm[unique(tg$gene_id),]
+# save the object
+saveRDS(sbstCDSCoGAPS, file = "sbstCds.rds")
+saveRDS(counts(sbstCDSCoGAPS), file = "countsSbstCds.rds")
+```
