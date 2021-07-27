@@ -143,3 +143,12 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 ##### Output
 * HumanTumorCoGAPSprojection.rdata
 * Projected pattern umaps
+
+### 15_CoGAPSData_matrigel.Rmd
+#### Description - Subset to top collagen genes for the matrigel data for CoGAPS
+##### Input 
+* EJFPsuedotimeResults2Mar2020.Rda
+* emtGwCogaps_20.rds
+##### Output
+* 15_sbstCdsMatrigel.rds
+* 15_countsSbstCdsMatrigel.rds
