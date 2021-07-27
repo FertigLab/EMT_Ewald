@@ -152,3 +152,12 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 ##### Output
 * 15_sbstCdsMatrigel.rds
 * 15_countsSbstCdsMatrigel.rds
+
+### 16_cogapsObjects_matrigel.Rmd
+#### Description - Create the cogaps objects for the matrigel cogaps runs
+##### Input 
+* 15_countsSbstCdsMatrigel.rds
+##### Output
+* 16_sampleGeneNamesMatrigel.rdata
+* 16_emtMatMatrigel.mtx
+* 16_emtParamsMatrigel.rds
