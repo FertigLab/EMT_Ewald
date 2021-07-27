@@ -1,0 +1,69 @@
+---
+title: "EMT single cell matrigel analysis - cogapsObjects"
+author: "Melanie"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r libraries}
+library(CoGAPS)
+library(Matrix)
+library(dplyr)
+sessionInfo()
+```
+
+```{r}
+# Load the data-----
+# Read in the data
+mat <- readRDS("Results/15_countsSbstCdsMatrigel.rds")
+
+# Prepare the data----
+dim(mat)
+# Remove MT- and RP genes
+mat <- mat[grep("Mt-|^Rp", rownames(mat), invert = TRUE), ]
+# Remove cells with no signal
+mat <- mat[, apply(mat, 2, max) > 0]
+# Remove genes with no signal/constant signal
+mat <- mat[apply(mat, 1, sd) > 0, ]
+# Log transform based on the counts data being whole numbers 
+mat <- log2(mat+1)
+# Check min of transformed data
+min(mat)
+# Recheck the dim
+dim(mat)
+```
+
+```{r createCogapsObject}
+# Create the CoGAPS objects for all genes----
+# Get gene and sample names
+geneNames<- rownames(mat)
+sampleNames<- colnames(mat)
+# Create the params object for running cogaps
+params <- new("CogapsParams")
+params <- CogapsParams(
+  sparseOptimization = TRUE,
+  nPatterns = 5,
+  seed = 367,
+  geneNames = geneNames,
+  sampleNames = sampleNames,
+  nIterations = 50000,
+  distributed = "genome-wide"
+)
+# Update the sets for the object
+params <- setDistributedParams(params, nSets = 2)
+# Make the matrix a spare matrix
+sparse.mat <- Matrix(mat, sparse = T)
+# Check params object
+params
+# Save objects
+## Save sample and gene names
+save(geneNames, sampleNames, file = "Results/16_sampleGeneNamesMatrigel.rdata")
+# Save the matrix object
+writeMM(obj = sparse.mat, file = "Results/16_emtMatMatrigel.mtx")
+# Save the cogaps params object
+saveRDS(params, file = "Results/16_emtParamsMatrigel.rds")
+```
+
