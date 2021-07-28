@@ -2,7 +2,9 @@
 title: "Figure"
 author: "Melanie"
 date: "7/13/2021"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -16,20 +18,21 @@ library(ggplot2)
 library(dplyr)
 library('ComplexHeatmap')
 library(forcats)
+library(knitr)
 sessionInfo()
 ```
 
 ```{r loadData}
 ## Load the cds objects
-load("cellCycle_EJFPsuedotimeResults2Mar2020.Rda")
+load("Results/cellCycle_EJFPsuedotimeResults2Mar2020.Rda")
 ## Load the CoGAPS 20 Pattern Result
-cogapsRes <- readRDS("gwCogapsRes/emtGwCogaps_20.rds")
+cogapsRes <- readRDS("Results/gwCogapsRes/emtGwCogaps_20.rds")
 ## Load the pathways results for the emt pathwyay
-emtPatterns <- read.csv(file = "msigdb/emtPatterns.csv", header = TRUE)
+emtPatterns <- read.csv(file = "Results/msigdb/emtPatterns.csv", header = TRUE)
 ## Load the pattern markers
-patternMarkerResults <- read.csv(file = "patternMarkers_emtGwCogaps_20.csv")
+patternMarkerResults <- read.csv(file = "Results/patternMarkers_emtGwCogaps_20.csv")
 ## Load the EMT genes
-emtGenes <- read.csv("geneList.csv", header = FALSE)
+emtGenes <- read.csv("Results/geneList.csv", header = FALSE)
 ```
 
 ## Panel A : Cell cycle
@@ -49,10 +52,10 @@ plot_genes_violin(cdsSubset, group_cells_by = "phase", ncol = 2)
 ```
 
 ## Panel C : Barplot of -10*log10(p values) for the hallmark EMT pathway
-```{r, fig.width=7.5}
+```{r}
 ## Make barplot for the hallmark emt pathway----
 ## Read in the emt pathway tables
-emtPatterns <- read.csv("/Volumes/OneTouch/ewaldEmt/msigdb/HighPValueResults/emtResults.csv")
+emtPatterns <- read.csv("Results/msigdb/HighPValueResults/emtResults.csv")
 ## Add the column with the updated p value
 emtPatterns$'-10*log10(adj.p.value)' <- (-10)*log10(emtPatterns$FDR.q.value)
 
@@ -68,7 +71,8 @@ emtPatterns %>%
     ggtitle("Hallmark EMT Pathway") +
     geom_hline(yintercept=c(13.0103), linetype="dotted") + # Add veritcle line to show significances
     geom_text(aes(label=FDR.q.value), hjust = -.04) +
-    theme(legend.position = "none") 
+    theme(legend.position = "none") +
+    ylim(0, 450)
 
 ```
 
@@ -124,7 +128,84 @@ plot_cells(cdsNorm, color_cells_by = "Pattern_5", label_cell_groups = FALSE)
 ## Pattern 8
 plot_cells(cdsNorm, color_cells_by = "Pattern_8", label_cell_groups = FALSE)
 
+## Pattern 12
+plot_cells(cdsNorm, color_cells_by = "Pattern_12", label_cell_groups = FALSE) 
+
 ## Pattern 14
 plot_cells(cdsNorm, color_cells_by = "Pattern_14", label_cell_groups = FALSE)
+```
+
+
+## Panel F : Show percentage of cells in each pattern
+```{r}
+## Subset the cogaps results to the specific patterns
+## Duplicate the result to manipulate 
+filteredCogaps <- cogapsRes
+## Eliminate the cell line patterns
+filteredCogaps@sampleFactors <- filteredCogaps@sampleFactors[, !colnames(filteredCogaps@sampleFactors) %in%c("Pattern_2", "Pattern_13")]
+## Run the pattern marker statistic on the cells 
+cellPatternMarker <- patternMarkers(filteredCogaps, axis = 2)
+## Add the pattern to the cell marker result
+for(i in 1:length(cellPatternMarker$PatternMarkers)){
+    ## Concert to a df
+    cellPatternMarker$PatternMarkers[[i]] <- as.data.frame(cellPatternMarker$PatternMarkers[[i]])
+    ## create column name
+    colnames(cellPatternMarker$PatternMarkers[[i]]) <- "CellID"
+    cellPatternMarker$PatternMarkers[[i]]$Pattern <- names(cellPatternMarker$PatternMarkers[i])
+}
+## Combined the tables
+cellPatternMarkerDataFrame <- do.call("rbind", cellPatternMarker$PatternMarkers)
+## Update rownames
+rownames(cellPatternMarkerDataFrame) <- cellPatternMarkerDataFrame$CellID
+
+## Add the pattern assignment to the cds
+colData(cdsNorm)$AssignedPattern <- cellPatternMarkerDataFrame[colnames(cdsNorm), "Pattern"]
+## Plot the data
+plot_cells(cdsNorm, color_cells_by = "AssignedPattern", label_cell_groups = FALSE)
+## Show pattern 5, 8, and 12 only
+plot_cells(cdsNorm, color_cells_by = "AssignedPattern", label_cell_groups = FALSE) +
+    scale_color_manual(values = c("gray80","gray80","gray80","black","#2297E6",
+                                  "gray80","gray80","gray80","gray80","gray80",
+                                  "gray80","gray80","#F5C710","gray80","gray80",
+                                  "#CD0BBC","gray80"))
+# Generate a table which counts cells assigned to each pattern
+countsTable <- table(colData(cdsNorm)$AssignedPattern)
+## make a proportion table with the counts table
+propTable <- as.data.frame(prop.table(countsTable))
+## round the proportions
+propTable$Freq <- round(propTable$Freq, digits = 4)
+## Merge the two tables
+combinedTable <- merge(as.data.frame(countsTable), propTable, by = "Var1")
+## Rename columns
+colnames(combinedTable) <- c("Pattern", "Number of Cells in Pattern", "Proportion of Cells in Pattern")
+## Create t
+kable(combinedTable)
+
+```
+
+```{r}
+# ## Make umaps for the gene's in gene list
+# pdf("Results/emtGeneUmaps.pdf")
+# for (i in 1:length(emtGenes$V1)){
+#     print(plot_cells(cdsNorm, genes = paste0(emtGenes$V1[i])))
+# }
+# dev.off()
+
+```
+## Panel G : UMAP Showing Vim and Cdh1 positive/negative cells
+```{r}
+## Subset the cds p data to Vim and Cdh1
+countsDataFrame <- as.data.frame(as.matrix(counts(cdsNorm)))
+countsSubset <- t(countsDataFrame[rownames(countsDataFrame) %in% c("Vim", "Cdh1"), ])
+## Classify by expression of the genes of interst
+classifiedCounts <- as.data.frame(countsSubset) %>%
+    mutate(classification = ifelse(Vim > 0 & Cdh1 > 0, "Double Positive",
+                                   ifelse(Vim > 0 & Cdh1 == 0, "Vim Positive",
+                                   ifelse(Vim == 0 & Cdh1 > 0, "Cdh1 Positive",
+                                   "Double Negative"))))
+## Add the classification to the cds
+colData(cdsNorm)$Classification <- classifiedCounts[colnames(cdsNorm), "classification"]
+## Plot the classification
+plot_cells(cdsNorm, color_cells_by = "Classification", label_cell_groups = FALSE)
 ```
 
