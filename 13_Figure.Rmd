@@ -15,6 +15,7 @@ library(CoGAPS)
 library(ggplot2)
 library(dplyr)
 library('ComplexHeatmap')
+library(forcats)
 sessionInfo()
 ```
 
@@ -48,26 +49,27 @@ plot_genes_violin(cdsSubset, group_cells_by = "phase", ncol = 2)
 ```
 
 ## Panel C : Barplot of -10*log10(p values) for the hallmark EMT pathway
-```{r}
+```{r, fig.width=7.5}
 ## Make barplot for the hallmark emt pathway----
 ## Read in the emt pathway tables
-emtPatterns <- read.csv("msigdb/emtPatterns.csv")
+emtPatterns <- read.csv("/Volumes/OneTouch/ewaldEmt/msigdb/HighPValueResults/emtResults.csv")
 ## Add the column with the updated p value
-emtPatterns$'-10*log10(p.value)' <- (-10)*log10(emtPatterns$p.value)
+emtPatterns$'-10*log10(adj.p.value)' <- (-10)*log10(emtPatterns$FDR.q.value)
 
 
 ## Make the barplot
-ggplot(data = emtPatterns, aes_string(y = "-10*log10(p.value)", x = "Pattern", fill = "Pattern")) +
+
+emtPatterns %>% 
+    mutate(Pattern=fct_reorder(Pattern, desc(p.value) )) %>%
+    ggplot(aes_string(y = "-10*log10(p.value)", x = "Pattern", fill = "Pattern")) +
     geom_col() +
     coord_flip() +
     theme_minimal() +
-    ggtitle("Hallmark EMT Pathway")
-## Make the barplot
-ggplot(data = emtPatterns, aes_string(y = "p.value", x = "Pattern", fill = "Pattern")) +
-    geom_col() +
-    coord_flip() +
-    theme_minimal() +
-    ggtitle("Hallmark EMT Pathway")
+    ggtitle("Hallmark EMT Pathway") +
+    geom_hline(yintercept=c(13.0103), linetype="dotted") + # Add veritcle line to show significances
+    geom_text(aes(label=FDR.q.value), hjust = -.04) +
+    theme(legend.position = "none") 
+
 ```
 
 
