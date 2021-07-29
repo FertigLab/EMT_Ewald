@@ -131,6 +131,7 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 * patternMarkers_emtGwCogaps_20.csv
 * geneList.csv
 * msigdb/emtPatterns.csv
+* emtResults.csv
 ##### Output
 * Figures
 
