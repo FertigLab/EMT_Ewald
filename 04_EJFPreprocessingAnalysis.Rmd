@@ -126,7 +126,7 @@ head(fitCoefs)
 
 ```{r}
 plot_cells(cdsNormCollagen,
-           genes=ciliated_genes,
+           genes=epithelialGenes,
            label_cell_groups=FALSE,
            show_trajectory_graph=FALSE)
 ```
