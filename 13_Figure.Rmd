@@ -63,15 +63,24 @@ emtPatterns$'-10*log10(adj.p.value)' <- (-10)*log10(emtPatterns$FDR.q.value)
 ## Make the barplot
 
 emtPatterns %>% 
+    ## Reorders the barplots
     mutate(Pattern=fct_reorder(Pattern, desc(p.value) )) %>%
     ggplot(aes_string(y = "-10*log10(p.value)", x = "Pattern", fill = "Pattern")) +
+    ## Specifies barplot
     geom_col() +
+    ## Flips the coordinates
     coord_flip() +
+    ## Makes the background white
     theme_minimal() +
+    ## Add title
     ggtitle("Hallmark EMT Pathway") +
+    ## This creates the dotted line at .05 value 
     geom_hline(yintercept=c(13.0103), linetype="dotted") + # Add veritcle line to show significances
+    ## Adds the q values
     geom_text(aes(label=FDR.q.value), hjust = -.04) +
+    ## Removes legend
     theme(legend.position = "none") +
+    ## specifies limits 
     ylim(0, 450)
 
 ```
@@ -91,8 +100,9 @@ scaledmat<- t(apply(amplitude, 1, scale))
 colnames(scaledmat) <- colnames(amplitude)
 
 ## Add * if the gene is a pattern marker for 
-
+## initalize an empty matrix
 small_mat <- matrix("", nrow = 33, ncol= 17)
+## Add row and column names to matrix
 rownames(small_mat) <- rownames(scaledmat)
 colnames(small_mat) <- colnames(scaledmat)
 
@@ -178,7 +188,7 @@ propTable$Freq <- round(propTable$Freq, digits = 4)
 combinedTable <- merge(as.data.frame(countsTable), propTable, by = "Var1")
 ## Rename columns
 colnames(combinedTable) <- c("Pattern", "Number of Cells in Pattern", "Proportion of Cells in Pattern")
-## Create t
+## Create table
 kable(combinedTable)
 
 ```
