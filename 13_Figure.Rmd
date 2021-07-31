@@ -34,7 +34,6 @@ patternMarkerResults <- read.csv(file = "Results/patternMarkers_emtGwCogaps_20.c
 ## Load the EMT genes
 emtGenes <- read.csv("Results/geneList.csv", header = FALSE)
 ```
-
 ## Panel A : Cell cycle
 ```{r}
 ## Plot the cell cycle
@@ -42,8 +41,14 @@ plot_cells(cdsNorm, color_cells_by = "phase", label_cell_groups = FALSE) +
     ggtitle("Cell Cycle Phase")
 ```
 
+## Panel B: Day
+```{r}
+## Plot the cell cycle
+plot_cells(cdsNorm, color_cells_by = "day", label_cell_groups = FALSE) +
+    ggtitle("Day")
+```
 
-## Panel B : Violin plots of Cdh1 / Vim by cell cycle state
+## Panel C : Violin plots of Cdh1 / Vim by cell cycle state
 ```{r violinPlot}
 ## Violin plot
 ## Subset to Vim and CDH1
@@ -51,14 +56,13 @@ cdsSubset <- cdsNorm[rowData(cdsNorm)$gene_short_name %in% c("Vim", "Cdh1"), ]
 plot_genes_violin(cdsSubset, group_cells_by = "phase", ncol = 2)
 ```
 
-## Panel C : Barplot of -10*log10(p values) for the hallmark EMT pathway
+## Panel D : Barplot of -10*log10(p values) for the hallmark EMT pathway
 ```{r}
 ## Make barplot for the hallmark emt pathway----
 ## Read in the emt pathway tables
 emtPatterns <- read.csv("Results/msigdb/HighPValueResults/emtResults.csv")
 ## Add the column with the updated p value
 emtPatterns$'-10*log10(adj.p.value)' <- (-10)*log10(emtPatterns$FDR.q.value)
-
 
 ## Make the barplot
 
@@ -86,13 +90,14 @@ emtPatterns %>%
 ```
 
 
-## Panel D : Heatmap with * added to the heatmap if it's a pattern marker gene 
-```{r, fig.height=6}
+## Panel E : Heatmap with * added to the heatmap if it's a pattern marker gene 
+```{r, fig.height=6, fig.width=8}
 ## Heatmap of the amplitude matrix ----
 ## Extract the amplitude matrix while dropping the cell line patterns
 amplitude <- cogapsRes@featureLoadings[rownames(cogapsRes@featureLoadings) %in% emtGenes$V1, 
-    !colnames(cogapsRes@featureLoadings) %in%c("Pattern_2", "Pattern_13")]
-
+    colnames(cogapsRes@featureLoadings) %in%c("Pattern_5","Pattern_8","Pattern_18", "Pattern_14")]
+## Reorder the scaledmat
+amplitude <- amplitude[, c("Pattern_5", "Pattern_8", "Pattern_18", "Pattern_14")] 
 ## Scale and center the data
 scaledmat<- t(apply(amplitude, 1, scale))
 
@@ -101,33 +106,42 @@ colnames(scaledmat) <- colnames(amplitude)
 
 ## Add * if the gene is a pattern marker for 
 ## initalize an empty matrix
-small_mat <- matrix("", nrow = 33, ncol= 17)
-## Add row and column names to matrix
+small_mat <- matrix("", nrow = nrow(scaledmat), ncol= ncol(scaledmat))
+## Add row andcolumn names to matrix
 rownames(small_mat) <- rownames(scaledmat)
 colnames(small_mat) <- colnames(scaledmat)
 
+
+
 ## Add * if the gene is pattern marker
 for (i in rownames(small_mat)){
-    for(j in colnames(patternMarkerResults)){
+    for(j in colnames(small_mat)){
         if( paste0(i) %in% patternMarkerResults[,paste0(j)]) {
             small_mat[paste(i), paste0(j)] <- "*"
         }
     }
 }
+
+
 ## Create the heatmap
-Heatmap(scaledmat, name = "Amplitude",cluster_columns = TRUE,
+Heatmap(t(scaledmat), name = "Amplitude",cluster_columns = TRUE,
         show_row_dend = FALSE, 
         show_column_dend = FALSE,
+        cluster_rows = FALSE,
+        row_names_side = "left",
+        column_names_side = "bottom",
+        column_names_rot = 45,
+        column_names_gp = gpar(fontsize=10),
         column_title = "Amplitude Heatmap of EMT Genes (nPattern = 20)",
         cell_fun = function(j, i, x, y, width, height, fill) {
-        grid.text(sprintf(small_mat[i, j]), x, y, gp = gpar(fontsize = 10))
+        grid.text(sprintf(small_mat[j, i]), x, y, gp = gpar(fontsize = 10))
 })
 
 
 ```
 
 
-## Panel E : UMAPS colored by pattern weights for patterns 5, 8, and 14 
+## Panel F : UMAPS colored by pattern weights for patterns 5, 8, 14, and 18 
 ```{r}
 ## Create the pattern umaps ----
 cdsNorm@colData <- cbind(colData(cdsNorm), cogapsRes@sampleFactors[colnames(cdsNorm), ])
@@ -139,14 +153,14 @@ plot_cells(cdsNorm, color_cells_by = "Pattern_5", label_cell_groups = FALSE)
 plot_cells(cdsNorm, color_cells_by = "Pattern_8", label_cell_groups = FALSE)
 
 ## Pattern 12
-plot_cells(cdsNorm, color_cells_by = "Pattern_12", label_cell_groups = FALSE) 
+plot_cells(cdsNorm, color_cells_by = "Pattern_14", label_cell_groups = FALSE) 
 
 ## Pattern 14
-plot_cells(cdsNorm, color_cells_by = "Pattern_14", label_cell_groups = FALSE)
+plot_cells(cdsNorm, color_cells_by = "Pattern_18", label_cell_groups = FALSE)
 ```
 
 
-## Panel F : Show percentage of cells in each pattern
+## Panel G : Show percentage of cells in each pattern
 ```{r}
 ## Subset the cogaps results to the specific patterns
 ## Duplicate the result to manipulate 
@@ -194,15 +208,15 @@ kable(combinedTable)
 ```
 
 ```{r}
-# ## Make umaps for the gene's in gene list
-# pdf("Results/emtGeneUmaps.pdf")
-# for (i in 1:length(emtGenes$V1)){
-#     print(plot_cells(cdsNorm, genes = paste0(emtGenes$V1[i])))
-# }
-# dev.off()
+## Make umaps for the gene's in gene list
+pdf("Results/emtGeneUmaps.pdf")
+for (i in 1:length(emtGenes$V1)){
+    print(plot_cells(cdsNorm, genes = paste0(emtGenes$V1[i])))
+}
+dev.off()
 
 ```
-## Panel G : UMAP Showing Vim and Cdh1 positive/negative cells
+## Panel H : UMAP Showing Vim and Cdh1 positive/negative cells
 ```{r}
 ## Subset the cds p data to Vim and Cdh1
 countsDataFrame <- as.data.frame(as.matrix(counts(cdsNorm)))
@@ -216,6 +230,11 @@ classifiedCounts <- as.data.frame(countsSubset) %>%
 ## Add the classification to the cds
 colData(cdsNorm)$Classification <- classifiedCounts[colnames(cdsNorm), "classification"]
 ## Plot the classification
-plot_cells(cdsNorm, color_cells_by = "Classification", label_cell_groups = FALSE)
+plot_cells(cdsNorm, color_cells_by = "Classification", label_cell_groups = FALSE) + scale_color_manual(values = c("cadetblue2","gray50","purple","orange"))
+
+## Add table for the number of cells in each classification
+## Create table
+kable(table(colData(cdsNorm)$Classification))
 ```
+
 
