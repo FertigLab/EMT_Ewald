@@ -240,40 +240,46 @@ kable(table(colData(cdsNorm)$Classification))
 ## Panel I : Gene Expression Pattern Plots
 ```{r}
 #Assigning the data
-pattern.weights<- as.matrix(cogapsRes@sampleFactors[, colnames(cogapsRes@sampleFactors) %in% c("Pattern_5","Pattern_8","Pattern_18", "Pattern_14")])
-colnames(pattern.weights) <- c("Pattern 5","Pattern 8","Pattern 14", "Pattern 18")
+## Extract the cogaps pattern weights
+pattern.weights <- (cogapsRes@sampleFactors[, colnames(cogapsRes@sampleFactors) %in% c("Pattern_5","Pattern_8","Pattern_18", "Pattern_14")])
+## Check the column names, dimensions and rownames
+colnames(pattern.weights)
+dim(pattern.weights)
+head(rownames(pattern.weights))
 
-day.info <- matrix(cdsNorm@colData@listData$day)
-colnames(day.info) <- "Day"
-rownames(day.info) <- rownames(cdsNorm@colData)
+##Extract day info
+day.info <- colData(cdsNormCollagen)[, colnames(colData(cdsNormCollagen)) == "day", drop =FALSE]
 
-epithelialGenes <- EMTGenes[c(1:6,16)]
-expression.data <- cdsNorm[rownames(cdsNorm) %in% epithelialGenes, ]
+##Extract gene expression info
+epithelialGenes <- emtGenes$V1[c(1:6,16)]
+expression.data <- cdsNormCollagen[rownames(cdsNormCollagen) %in% epithelialGenes, ]
 expression.data <- t(exprs(expression.data))
-expression.data <- as.matrix(log10(expression.data))
+expression.data <- as.data.frame(log10(expression.data))
 
-data<-cbind(pattern.weights, expression.data[rownames(pattern.weights), ], day.info[rownames(pattern.weights), ])
-data<- as.data.frame(data)
-names(data)[12] <- "Day"
+## Merge expression and day info
+mergedDayExpr <- cbind(day.info, expression.data)
+
+## Merge in pattern matrix
+data <- as.data.frame(merge(mergedDayExpr, pattern.weights, all.x = TRUE, by = "row.names"))
 
 
 #Test Plot with 1 gene and 1 pattern
-ggplot(data,aes(as.numeric(Pattern_5),as.numeric(Vim))) + geom_point(aes(colour=Day)) + labs(y="log10(Expression)",title="Vim",x="Pattern 5") + theme(axis.text = element_blank(),)+ geom_smooth(color='black') + theme_minimal() + theme(plot.title = element_text(hjust = 0.5))
+ggplot(data,aes(x=(Pattern_5),y=(Vim), colour=day)) + geom_point() + labs(y="log10(Expression)",title="Vim",x="Pattern 5") + theme(axis.text = element_blank()) + geom_smooth(color='black', se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5))
 
 
+loop1 <- data[,3:9]
 
-loop1 <- data[,5:11]
 
 #Generating pdf of Pattern 5
  
-  pdf(file = "finalfigures/P5_Expression_Patterns.pdf")
+  pdf(file = "/finalfigures/P5_Expression_Patterns.pdf")
   
   #Plot List
   plot_list <- list()
   
   for (i in 1:ncol(loop1)){
     
-    print(ggplot(data,aes(as.numeric(Pattern_5),as.numeric(loop1[,i]))) + geom_point(aes(colour=Day)) + labs(title=colnames(loop1[i]), x="Pattern 5", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+    print(ggplot(data,aes((Pattern_5),(loop1[,i]),colour=day)) + geom_point() + labs(title=colnames(loop1[i]), x="Pattern 5", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
 
   }
   
@@ -282,14 +288,14 @@ loop1 <- data[,5:11]
   
 #Generating pdf of Pattern 8
  
-  pdf(file = "finalfigures/P8_Expression_Patterns.pdf")
+  pdf(file = "/finalfigures/P8_Expression_Patterns.pdf")
   
   #Plot List
   plot_list <- list()
   
   for (i in 1:ncol(loop1)){
     
-    print(ggplot(data,aes(as.numeric(Pattern_8),as.numeric(loop1[,i]))) + geom_point(aes(colour=Day)) + labs(title=colnames(loop1[i]), x="Pattern 8", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+    print(ggplot(data,aes((Pattern_8),(loop1[,i]),colour=day)) + geom_point() + labs(title=colnames(loop1[i]), x="Pattern 8", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
   
   }
 
@@ -298,36 +304,36 @@ loop1 <- data[,5:11]
   
   #Generating pdf of Pattern 14
  
-  pdf(file = "finalfigures/P14_Expression_Patterns.pdf")
+  pdf(file = "/finalfigures/P14_Expression_Patterns.pdf")
   
   #Plot List
   plot_list <- list()
   
   for (i in 1:ncol(loop1)) {
     
-    print(ggplot(data,aes(as.numeric(Pattern_14),as.numeric(loop1[,i]))) + geom_point(aes(colour=Day)) + labs(title=colnames(loop1[i]), x="Pattern 14", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+    print(ggplot(data,aes((Pattern_14),(loop1[,i]),colour=day)) + geom_point() + labs(title=colnames(loop1[i]), x="Pattern 14", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
   
   }
   
   dev.off()
   
   
-  #Generating pdf of Pattern5
+  #Generating pdf of Pattern18
  
-  pdf(file = "finalfigures/P18_Expression_Patterns.pdf")
+  pdf(file = "/finalfigures/P18_Expression_Patterns.pdf")
   
   #Plot List
   plot_list <- list()
   
   for (i in 1:ncol(loop1)){
     
-    print(ggplot(data,aes(as.numeric(Pattern_18),as.numeric(loop1[,i]))) + geom_point(aes(colour=Day)) + labs(title=colnames(loop1[i]), x="Pattern 18", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+    print(ggplot(data,aes((Pattern_18),(loop1[,i]),colour=day)) + geom_point() + labs(title=colnames(loop1[i]), x="Pattern 18", y="log10(Expression)") + theme(axis.text = element_blank())+ geom_smooth(color='black',se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
   
   }
 
   dev.off()
 
-
+as.matrix(data)
 
 ```
 
