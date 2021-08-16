@@ -237,7 +237,7 @@ plot_cells(cdsNorm, color_cells_by = "Classification", label_cell_groups = FALSE
 kable(table(colData(cdsNorm)$Classification))
 ```
 
-## Panel I : Gene Expression Pattern Plots
+## Panel I : Gene Expression Pattern Plots *Collagen Data only*
 ```{r}
 #Assigning the data
 ## Extract the cogaps pattern weights
@@ -336,4 +336,44 @@ loop1 <- data[,3:9]
 as.matrix(data)
 
 ```
+
+##Panel J: Patterns vs Pseudotime
+```{r}
+#Assigning the data
+## Extract the cogaps pattern weights
+pattern.weights <- (cogapsRes@sampleFactors[, colnames(cogapsRes@sampleFactors) %in% c("Pattern_5","Pattern_8","Pattern_18", "Pattern_14")])
+## Check the column names, dimensions and rownames
+colnames(pattern.weights)
+dim(pattern.weights)
+head(rownames(pattern.weights))
+
+##Extract day info
+day.info <- colData(cdsNormCollagen)[, colnames(colData(cdsNormCollagen)) == "day", drop =FALSE]
+
+##Generating pseudotime info
+Pseudotime <- pseudotime(cdsNormCollagen)
+
+## Merge pseudotime and day info
+mergedDayPseudo <- cbind(day.info, Pseudotime)
+
+## Merge in pattern matrix
+pseudoplots.data <- as.data.frame(merge(mergedDayPseudo, pattern.weights, all.x = TRUE, by = "row.names"))
+
+pdf(file="/FinalFigures/Pattern_v_Pseudotime.pdf")
+
+#Pattern 5
+ggplot(pseudoplots.data,aes(x=(Pseudotime),y=(Pattern_5), colour=day)) + geom_point() + labs(y="Pattern Weight",title="Pattern 5",x="Pseudotime") + theme(axis.text = element_blank()) + geom_smooth(color='black', se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5))
+
+#Pattern 8
+ggplot(pseudoplots.data,aes(x=(Pseudotime),y=(Pattern_8), colour=day)) + geom_point() + labs(y="Pattern Weight",title="Pattern 8",x="Pseudotime") + theme(axis.text = element_blank()) + geom_smooth(color='black', se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5))
+
+#Pattern 14
+ggplot(pseudoplots.data,aes(x=(Pseudotime),y=(Pattern_14), colour=day)) + geom_point() + labs(y="Pattern Weight",title="Pattern 14",x="Pseudotime") + theme(axis.text = element_blank()) + geom_smooth(color='black', se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5))
+
+#Pattern 5
+ggplot(pseudoplots.data,aes(x=(Pseudotime),y=(Pattern_18), colour=day)) + geom_point() + labs(y="Pattern Weight",title="Pattern 18",x="Pseudotime") + theme(axis.text = element_blank()) + geom_smooth(color='black', se=FALSE) + theme_minimal() + theme(plot.title = element_text(hjust = 0.5))
+
+dev.off()
+```
+
 
