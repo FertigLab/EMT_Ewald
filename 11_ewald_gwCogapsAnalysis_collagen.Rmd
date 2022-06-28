@@ -10,15 +10,15 @@ library(tibble)
 library(ggplot2)
 library(gridExtra)
 library(CoGAPS)
-library('tricycle')
+#library('tricycle')
 sessionInfo() 
 ```
 
 ```{r loadData}
 # CDS object
-sbstCDSCoGAPS <- readRDS("sbstCds.rds")
+sbstCDSCoGAPS <- readRDS("Cogaps/Whole/CDSCoGAPS.rds")
 # CoGAPS result paths
-gwCogapsPath <- list.files(path = "gwCogapsRes", full.names = TRUE)
+gwCogapsPath <- list.files(path = "Cogaps/Whole/gwCogapsRes", full.names = TRUE)
 # Read in the results
 gwCogapsRes <- lapply(gwCogapsPath, readRDS)
 # Provide names for the cogaps results, this will help with plot names
@@ -34,7 +34,7 @@ plot_cells(sbstCDSCoGAPS, color_cells_by = 'batch')
 # Make batch categorical
 colData(sbstCDSCoGAPS)$batch <- as.factor(colData(sbstCDSCoGAPS)$batch)
 colData(sbstCDSCoGAPS)$mouseDay <- colData(sbstCDSCoGAPS)$'mouse-day' 
-pdf("metaData_umap.pdf")
+pdf("Cogaps/Whole/Figures/metaData_umap.pdf")
 # Plot the meta data variables on UMAP----
     # retrieve the metadata variables
     metaData <- colnames(colData(sbstCDSCoGAPS))
@@ -42,7 +42,7 @@ pdf("metaData_umap.pdf")
     metaData <- metaData[!metaData %in% c("index")]
     # Loop through the metaData and plot
     for (i in metaData){
-        # plot the datta
+        # plot the data
         print(plot_cells(sbstCDSCoGAPS, color_cells_by = paste0(i), 
               label_cell_groups = FALSE))
     }
@@ -65,7 +65,7 @@ for(i in 1:length(gwCogapsRes)){
         for (j in colnames(patMat)){
             # plot the data
             print(plot_cells(tempCds, color_cells_by = paste0(j),
-                  label_cell_groups = FALSE))
+                  label_cell_groups = FALSE) + facet_wrap("media"))
                   
                 # + scale_color_gradient2(name = paste0(paste0(j)), low = "grey96", high = "red"))
         }
@@ -108,22 +108,21 @@ corMat <- cor(mergedGaps)
 heatmap(corMat)
 ```
 
+##Chi2 Values for each result
 ```{r}
-# Pattern marker statistics-----
-## Run pattern marker statistic for p = 20
-# Remove cell line patterns becasue they are skewing the results
-# P2, P13
-filteredCogaps <- gwCogapsRes[[1]]
+gaps1chi2 <- gwCogapsRes[[1]]@metadata$meanChiSq
+gaps2chi2 <- gwCogapsRes[[2]]@metadata$meanChiSq
+gaps3chi2 <- gwCogapsRes[[3]]@metadata$meanChiSq
+gaps4chi2 <- gwCogapsRes[[4]]@metadata$meanChiSq
+gaps5chi2 <- gwCogapsRes[[5]]@metadata$meanChiSq
+gaps6chi2 <- gwCogapsRes[[6]]@metadata$meanChiSq
 
-filteredCogaps@featureLoadings <- filteredCogaps@featureLoadings[, !colnames(filteredCogaps@featureLoadings) %in%c("Pattern_2", "Pattern_13")]
+gapsmeanchi2 <- c(gaps1chi2,gaps2chi2,gaps3chi2,gaps4chi2,gaps5chi2,gaps6chi2)
+gapspatterns <- c("10","12","14","16","20","25")
 
-patternMarkerResults <- patternMarkers(filteredCogaps)
+gapschi2Res <- as.data.frame(cbind(gapspatterns,gapsmeanchi2))
 
-
-#make into a data frame for csv
-df <- data.frame(lapply(patternMarkerResults$PatternMarkers, "length<-", max(lengths(patternMarkerResults$PatternMarkers))))
-
-write.csv(df, file="patternMarkers_emtGwCogaps_20.csv", row.names = FALSE, na="")
-
+ggplot(data=gapschi2Res, aes(y=gapsmeanchi2,x=gapspatterns))+geom_point()
 ```
+
 

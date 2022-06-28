@@ -19,7 +19,7 @@ sessionInfo()
 ```{r}
 # Load the data-----
 # Read in the data
-mat <- readRDS("countsSbstCds.rds")
+mat <- readRDS("Cogaps/Whole/countsCDSCoGAPS.rds")
 
 # Prepare the data----
 dim(mat)
@@ -54,15 +54,29 @@ params <- CogapsParams(
   distributed = "genome-wide"
 )
 # Update the sets for the object
-params <- setDistributedParams(params, nSets = 4)
+params <- setDistributedParams(params, nSets = 5)
 # Make the matrix a spare matrix
 sparse.mat <- Matrix(mat, sparse = T)
 # Check params object
 params
 # Save objects
 # Save the matrix object
-writeMM(obj = sparse.mat, file = "emtMat.mtx")
-# Save the cogaps params object
-saveRDS(params, file = "emtParams.rds")
+writeMM(obj = sparse.mat, file = "Cogaps/Whole/emtMat.mtx")
+```
+
+## Adapt Mel's previous Params Obj.
+```{r}
+##Open premade CoGAPS Params Obj and make it match the one created above
+melParams <- readRDS("emtParams (2).rds")
+melParams@geneNames <- geneNames
+melParams@sampleNames <- sampleNames
+melParams@distributed <- "genome-wide"
+melParams@nSets <- 5
+melParams@cut <- 5
+melParams@nPatterns <- 5
+melParams@minNS <- 3
+melParams@maxNS <- 8
+saveRDS(melParams, file="Cogaps/Whole/emtParams.rds")
+```
 ```
 
