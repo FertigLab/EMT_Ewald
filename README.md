@@ -1,6 +1,19 @@
 # EMT_Ewald
 Curated set of analysis scripts for single cell data from the Ewald Lab.
 
+## Publication Title
+Triple negative breast cancer metastasis involves complex epithelial-mesenchymal transition dynamics and requires vimentin
+
+Authors: Eloïse M. Grasset1*, Matthew Dunworth1, Gaurav Sharma2, Melanie Loth3, Joseph Tandurella3, Ashley Cimino-Mathews3,4, Melissa Gentz1, Sydney Bracht1, Meagan Haynes1, Elana J. Fertig2,3,5,6, Andrew J. Ewald1,2,3,6*
+
+Affiliations:
+1 Department of Cell Biology, School of Medicine, Johns Hopkins University, Baltimore, MD 21205, USA
+2 Department of Biomedical Engineering, School of Medicine, Johns Hopkins University, Baltimore, MD 21205, USA
+3 Department of Oncology, Sidney Kimmel Comprehensive Cancer Center, Johns Hopkins University School of Medicine, Baltimore, MD 21205, USA
+4 Department of Pathology, School of Medicine, Johns Hopkins University, Baltimore, MD 21205, USA
+5 Department of Applied Mathematics and Statistics, Johns Hopkins University, Baltimore, MD 21205, USA
+6 Convergence Institute, Johns Hopkins University, Baltimore, MD 21205, USA
+
 ### 1_CombineData.ipynb
 #### Description - Joins the counts data together
 ##### Input 
@@ -135,30 +148,3 @@ Curated set of analysis scripts for single cell data from the Ewald Lab.
 ##### Output
 * Figures
 
-### 14_ChungProjection.Rmd
-#### Description - Format the Chung single cell data, subset to tumor cells, run ProjectR
-##### Input 
-* GSE75688_GEO_processed_Breast_Cancer_raw_TPM_matrix.txt
-* GSE75688_final_sample_information.txt
-* gwCogapsRes/emtGwCogaps_20.rds
-##### Output
-* HumanTumorCoGAPSprojection.rdata
-* Projected pattern umaps
-
-### 15_CoGAPSData_matrigel.Rmd
-#### Description - Subset to top collagen genes for the matrigel data for CoGAPS
-##### Input 
-* EJFPsuedotimeResults2Mar2020.Rda
-* emtGwCogaps_20.rds
-##### Output
-* 15_sbstCdsMatrigel.rds
-* 15_countsSbstCdsMatrigel.rds
-
-### 16_cogapsObjects_matrigel.Rmd
-#### Description - Create the cogaps objects for the matrigel cogaps runs
-##### Input 
-* 15_countsSbstCdsMatrigel.rds
-##### Output
-* 16_sampleGeneNamesMatrigel.rdata
-* 16_emtMatMatrigel.mtx
-* 16_emtParamsMatrigel.rds
